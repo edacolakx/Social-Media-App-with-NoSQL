@@ -2,7 +2,7 @@ import { View, Text ,TextInput,StyleSheet, Alert} from 'react-native'
 import React, { useState } from 'react'
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import createNewUser from '../components/controller';
+import {createNewUser} from '../components/controller';
 import { Button } from 'react-native-paper';
 
 export default function Createuser() {
