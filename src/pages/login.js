@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, TextInput } from 'react-native';
+import { View,Text,StyleSheet ,TouchableOpacity, Alert} from 'react-native';
 import SecureStorage from 'rn-secure-storage';
 import axios from 'axios';
 import RNSecureStorage, { ACCESSIBLE } from 'rn-secure-storage'
+import { setName } from '../redux/actions';
+import { useDispatch,useSelector } from 'react-redux';
+import { Button,TextInput } from 'react-native-paper';
+import FastImage from 'react-native-fast-image';
+
+
+
+
 const Login = ({ navigation }) => {
   const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+    const dispatch=useDispatch()
 
   useEffect(() => {
-    // Uygulama yüklenirken tokeni kontrol et
     checkLoginStatus;
   }, []);
 
@@ -17,7 +25,6 @@ const Login = ({ navigation }) => {
     try {
       const storedToken = await SecureStorage.getItem('token');
       if (storedToken) {
-        // Eğer token varsa, kullanıcı oturumda demektir
         console.log("1")
         setToken(storedToken);
       }
@@ -28,64 +35,109 @@ const Login = ({ navigation }) => {
 
   async function handleLogin   ()  {
     try {
-      // Kullanıcı adı ve şifre ile sunucuya istek yaparak token al
       console.log("noldu")
-
       const response = await axios.post('http://10.0.2.2:3000',{username,password})
-      console.log("noldu1")
-
       const data=response.data
-      console.log("noldu2")
-
-      // Tokeni Secure Storage'e kaydet
       await RNSecureStorage.set('token',data.token,{accessible:ACCESSIBLE.WHEN_UNLOCKED})
       .then((res)=>{
-
         setToken(data.token);
-      })
-      console.log("noldu3")
-      // Oturumu başlat
-      
-      navigation.navigate('HomePage')
-
+      })  
+      navigation.navigate('Home')
     } catch (error) {
-      console.error('Giriş hatası: ', error);
+      {
+        Alert.alert(
+          "Eksik yada hatalı bilgi girdiniz",
+            "",
+            [
+              {
+                text: "İptal",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel"
+              }
+            ]
+        )
+      }
     }
   };
 
   const handleLogout = async () => {
 
     try {
-      // Oturumu sonlandır: Secure Storage'den tokeni kaldır
-      await SecureStorage.removeItem('token');
+      await RNSecureStorage.remove('token');
+
       setToken('');
     } catch (error) {
       console.error('Çıkış hatası: ', error);
     }
   };
-
   return (
-    <View>
-      {!token ? (
-        <View>
+    <View style={style.container}>
+
+        <View>       
+        <FastImage
+        style={style.gif}
+        source={
+            require("../assets/mygif.gif") }
+        resizeMode={FastImage.resizeMode.contain}
+    />
           <TextInput
-            placeholder="Kullanıcı adı"
-            value={username}
-            onChangeText={setUsername}
+            style={style.input}
+            onChangeText={(t)=>{
+              dispatch(setName(t))
+              setUsername(t)
+            }}
+            mode='outlined'
+            label={"Kullanıcı Adı"}
           />
           <TextInput
-            placeholder="Şifre"
             secureTextEntry
             value={password}
+            style={style.input1}
             onChangeText={setPassword}
+            mode='outlined'
+            label={"Şifre"}
           />
-          <Button title="Giriş Yap" onPress={handleLogin} />
+          <Button  onPress={handleLogin} >Giriş yap</Button>
+            <TouchableOpacity onPress={()=>{navigation.navigate('FirstRegister')}} style={{alignSelf:"center"}}>
+              <Text>Kayıt Ol</Text>
+            </TouchableOpacity>
         </View>
-      ) : (
-        <Button title="Çıkış Yap" onPress={handleLogout} />
-      )}
+
     </View>
   );
 };
 
 export default Login;
+
+
+const style=StyleSheet.create({
+  input:{
+  marginBottom:10,
+  width:300,
+  alignSelf:"center",
+  marginTop:50,
+  backgroundColor:"#FFA372",
+
+  },
+  input1:{
+  marginBottom:10,
+  width:300,
+  alignSelf:"center",
+  backgroundColor:"#FFA372",
+
+  },
+  container:{
+    flex:1,
+    backgroundColor:"#FFA372",
+    position: 'absolute',
+    width: "100%",
+    height: "100%",
+
+  },
+  gif:{
+     width: 200, 
+     height: 200,
+     alignSelf:"center" ,
+     marginTop:100
+  }
+})
