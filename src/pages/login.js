@@ -97,7 +97,7 @@ const Login = ({ navigation }) => {
             mode='outlined'
             label={"Şifre"}
           />
-          <Button  onPress={handleLogin} >Giriş yap</Button>
+          <Button onPress={handleLogin} >Giriş yap</Button>
             <TouchableOpacity onPress={()=>{navigation.navigate('FirstRegister')}} style={{alignSelf:"center"}}>
               <Text>Kayıt Ol</Text>
             </TouchableOpacity>
